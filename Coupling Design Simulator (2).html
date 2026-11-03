@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Coupling Design Simulator</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+--bg:#f4f5f7;--card:#fff;--tx:#1c2430;--mu:#667085;--bd:#dde1e7;--ac:#2563eb;--ok:#16a34a;--wa:#d97706;--ng:#dc2626;--steel:#b9c3d0;--steel2:#8d99a8;--hub:#cbd5e1;--ink:#334155}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#12161c;--card:#1b212a;--tx:#e6eaf0;--mu:#93a0b2;--bd:#2c3542;--ac:#60a5fa;--ok:#4ade80;--wa:#fbbf24;--ng:#f87171;--steel:#566274;--steel2:#7d8a9d;--hub:#465366;--ink:#cbd5e1}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#12161c;--card:#1b212a;--tx:#e6eaf0;--mu:#93a0b2;--bd:#2c3542;--ac:#60a5fa;--ok:#4ade80;--wa:#fbbf24;--ng:#f87171;--steel:#566274;--steel2:#7d8a9d;--hub:#465366;--ink:#cbd5e1}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:
+      radial-gradient(ellipse at 8% 4%,rgba(37,99,235,.17),transparent 34%),
+      radial-gradient(ellipse at 92% 12%,rgba(14,165,233,.14),transparent 30%),
+      radial-gradient(ellipse at 55% 100%,rgba(99,102,241,.10),transparent 38%),
+      linear-gradient(135deg,#eef4ff 0%,#f7f9ff 48%,#edf7fb 100%);
+      background-attachment:fixed;color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:
+      radial-gradient(ellipse at 8% 4%,rgba(37,99,235,.20),transparent 34%),
+      radial-gradient(ellipse at 92% 12%,rgba(14,165,233,.13),transparent 30%),
+      linear-gradient(135deg,#101827 0%,#151d2c 52%,#10212b 100%);background-attachment:fixed}}
+:root[data-theme="dark"] body{background:
+      radial-gradient(ellipse at 8% 4%,rgba(37,99,235,.20),transparent 34%),
+      radial-gradient(ellipse at 92% 12%,rgba(14,165,233,.13),transparent 30%),
+      linear-gradient(135deg,#101827 0%,#151d2c 52%,#10212b 100%);background-attachment:fixed}
+.wrap{max-width:1200px;margin:0 auto;padding:14px;display:grid;grid-template-columns:320px 1fr;gap:14px}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}}
+.card{background:color-mix(in srgb,var(--card) 94%,transparent);border:1px solid color-mix(in srgb,var(--bd) 82%,transparent);border-radius:14px;padding:14px;box-shadow:0 8px 24px rgba(30,64,120,.07);backdrop-filter:blur(8px)}
+h1{font-size:18px;margin:0 0 2px}h2{font-size:13px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.05em;color:var(--mu)}
+.sub{color:var(--mu);font-size:12px;margin-bottom:10px}
+.row{margin:9px 0}.row label{display:flex;justify-content:space-between;font-size:12.5px}.row b{font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--ac)}
+select{width:100%;padding:7px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx)}
+.seg{display:flex;gap:6px}.seg button,.btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer;font:inherit}
+.seg button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.main{display:flex;flex-direction:column;gap:14px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{background:color-mix(in srgb,var(--card) 94%,transparent);border:1px solid color-mix(in srgb,var(--bd) 82%,transparent);border-radius:14px;padding:10px 12px;box-shadow:0 6px 18px rgba(30,64,120,.06)}
+.kpi span{font-size:11.5px;color:var(--mu);display:block}.kpi b{font-size:19px;font-variant-numeric:tabular-nums}.kpi small{color:var(--mu)}
+.status{font-weight:700;letter-spacing:.04em}
+.views{display:grid;grid-template-columns:1.6fr 1fr;gap:10px}@media(max-width:700px){.views{grid-template-columns:1fr}}
+svg{width:100%;height:auto;display:block}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:520px}
+th,td{padding:6px 6px;text-align:left;border-bottom:1px solid var(--bd);font-variant-numeric:tabular-nums}th{color:var(--mu);font-weight:600}
+.bar{height:8px;background:var(--bd);border-radius:4px;position:relative;min-width:90px}.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+.bar u{position:absolute;left:66.7%;top:-2px;bottom:-2px;border-left:1px dashed var(--mu)}
+.pill{padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;color:#fff}
+.adv li{margin:5px 0}.adv{padding-left:18px;margin:0}
+.tabs{max-width:1200px;margin:0 auto;padding:16px 14px 0;display:flex;gap:8px;flex-wrap:wrap}.tabs button{padding:9px 18px;border-radius:10px 10px 0 0;border:1px solid var(--bd);background:color-mix(in srgb,var(--card) 90%,transparent);color:var(--mu);cursor:pointer;font:inherit;font-weight:650;box-shadow:0 3px 12px rgba(30,64,120,.05)}.tabs button.on{background:linear-gradient(135deg,var(--ac),#0ea5e9);color:#fff;border-color:transparent;box-shadow:0 5px 14px rgba(37,99,235,.22)}
+.pane{max-width:1200px;margin:0 auto;padding:14px}.pane .card{margin-bottom:14px}.pane h3{margin:14px 0 6px;font-size:15px}.pane p,.pane li{max-width:900px}.eq{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin:6px 0;overflow-x:auto;white-space:pre}
+.dl{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.dl button{flex:0 0 auto;padding:9px 16px;border-radius:8px;border:1px solid var(--ac);background:var(--ac);color:#fff;cursor:pointer;font:inherit;font-weight:600}
+.geo{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:4px 12px;font-size:12px;color:var(--mu)}.geo b{color:var(--tx)}
+
+/* ---- new layout ---- */
+:root{--ac:#0d9488;--ac2:#f59e0b;--bg:#f6f4ef;--bd:#e0dccf}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ac:#2dd4bf;--ac2:#fbbf24;--bg:#14181a;--bd:#2b3336}}
+:root[data-theme="dark"]{--ac:#2dd4bf;--ac2:#fbbf24;--bg:#14181a;--bd:#2b3336}
+body,:root[data-theme="dark"] body{background:var(--bg)!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:var(--bg)!important}}
+.top{background:var(--ac);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:4px solid var(--ac2)}
+.top h1{font-size:20px;margin:0;color:#fff}.top .sub{color:rgba(255,255,255,.85);margin:0}
+.top .tabs{max-width:none;margin:0;padding:0;gap:6px}
+.top .tabs button{border-radius:999px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);box-shadow:none;padding:7px 16px}
+.top .tabs button.on{background:#fff;color:#0f766e;border-color:#fff;box-shadow:none}
+.wrap{grid-template-columns:1fr 330px}
+.wrap>aside{grid-column:2;grid-row:1;position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
+.wrap>.main{grid-column:1;grid-row:1}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}.wrap>aside,.wrap>.main{grid-column:1;grid-row:auto;position:static;max-height:none}.wrap>aside{order:-1}}
+.card{border-radius:6px;border-left:4px solid var(--ac);box-shadow:none;backdrop-filter:none;background:var(--card)}
+.kpis{grid-template-columns:repeat(6,1fr)}@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{border-radius:6px;border:1px solid var(--bd);border-top:3px solid var(--ac2);box-shadow:none;text-align:center;background:var(--card)}
+.kpi b{font-size:18px}
+.views{grid-template-columns:1fr 1.6fr}.views #end{order:-1;max-width:280px;margin:auto}
+@media(max-width:700px){.views{grid-template-columns:1fr}}
+.main #advCard{order:1}.main .card:nth-of-type(3){order:2}
+.card h2{color:var(--ac);border-bottom:1px solid var(--bd);padding-bottom:5px}
+.seg button.on{background:var(--ac);border-color:var(--ac)}
+input[type=range]{accent-color:var(--ac)}
+.dl button{background:var(--ac);border-color:var(--ac)}
+.pane .card{border-radius:6px}
+</style></head><body>
+<header class="top"><div class="brand"><h1>Coupling Design Simulator</h1><div class="sub">Rigid flange &amp; flexible bushed-pin couplings · live design checks</div></div><nav class="tabs"><button id="tab_theory" onclick="tab('theory')">Aim &amp; Theory</button><button id="tab_sim" class="on" onclick="tab('sim')">Simulator</button><button id="tab_results" onclick="tab('results')">Results &amp; Download</button></nav></header>
+<div class="wrap" id="pane_sim">
+<aside class="card">
+<h2>Coupling type</h2>
+<div class="seg" id="typeSeg"><button data-t="rigid">Rigid flange</button><button data-t="flex" class="on">Flexible pin-bush</button></div>
+<h2 style="margin-top:14px">Duty</h2><div id="in1"></div>
+<div class="row"><label>Service factor Ks <b id="ksv"></b></label>
+<select id="duty"><option value="1.0">Smooth (generator, fan) – 1.0</option><option value="1.25" selected>Moderate (pump, conveyor) – 1.25</option><option value="1.5">Medium shock (compressor) – 1.5</option><option value="2.0">Heavy shock (crusher, press) – 2.0</option></select></div>
+<h2 style="margin-top:14px">Allowable stresses (MPa)</h2><div id="in2"></div>
+<h2 style="margin-top:14px">Shaft misalignment</h2><div id="in3"></div>
+<div class="row"><button class="btn" id="spin">Pause rotation</button></div>
+</aside>
+<section class="main">
+<div class="kpis" id="kpis"></div>
+<div class="card"><h2>Coupling visualisation <span style="text-transform:none;letter-spacing:0">(misalignment exaggerated)</span></h2>
+<div class="views"><svg id="side" viewBox="0 0 640 300"></svg><svg id="end" viewBox="0 0 300 300"></svg></div>
+<div class="geo" id="geo" style="margin-top:8px"></div></div>
+<div class="card"><h2>Stress &amp; safety checks <span style="text-transform:none;letter-spacing:0">(dashed line = target SF 1.5)</span></h2><div class="tw"><table id="tbl"></table></div></div>
+<div class="card" id="advCard"><h2>Design advisor</h2><ul class="adv" id="adv"></ul></div>
+</section></div>
+<div class="pane" id="pane_theory" style="display:none">
+<div class="card"><h2>Aim</h2>
+<p>To design a rigid flange coupling and a flexible bushed-pin coupling for a given power and speed, to check every component against its allowable stress, and to study how service factor, material strength and shaft misalignment change the safety factor and torque capacity.</p>
+<h3>Objectives</h3><ul><li>Determine the shaft diameter from the design torque.</li><li>Proportion the hub, flange, key, bolts or pins by standard rules.</li><li>Find the stresses and the safety factor of each element.</li><li>Observe the effect of parallel and angular misalignment on both coupling types.</li></ul></div>
+<div class="card"><h2>Theory</h2>
+<p>A coupling joins two shafts to transmit torque. A <b>rigid</b> coupling gives a solid connection and needs precisely aligned shafts. A <b>flexible</b> coupling uses elastic elements (bushes on pins) that absorb small misalignment, shock and vibration.</p>
+<h3>1. Torque and design torque</h3><div class="eq">T  = 9550 · P / n          (N·m, P in kW, n in rpm)
+Td = Ks · T                (Ks = service factor)</div>
+<h3>2. Shaft diameter (torsion)</h3><div class="eq">Td = (π/16) · τs · d³   →   d = [16·Td / (π·τs)]^(1/3)   (rounded to a standard size)</div>
+<h3>3. Standard proportions (Indian-textbook practice)</h3><div class="eq">Hub dia   Dh = 2d        Flange thickness t = 0.5d
+Bolt PCD  D1 = 3d        Flange outer dia  D2 = 4d
+Key       b = d/4, h = d/6, length l = 1.5d</div>
+<h3>4. Stresses checked</h3><div class="eq">Key shear      τk = 2T / (d·b·l)
+Key crushing   σc = 4T / (d·h·l)
+Hub shear      τh = 16·T·Dh / [π(Dh⁴ − d⁴)]
+Flange shear   τf = 2T / (π·Dh²·t)</div>
+<h3>5. Rigid coupling – bolts in shear</h3><div class="eq">T = n · (π/4)·db² · τb · (D1/2)   →   db = √[8T / (π·n·τb·D1)]</div>
+<h3>6. Flexible coupling – pins and bushes</h3><div class="eq">Load per pin   F = 2T / (n·D1)
+Bush pressure  p = F / (dp · lb),   lb = 1.5·dp
+Pin bending    σb = 32·F·(lb/2 + 5) / (π·dp³)
+Pin shear      τ  = 4F / (π·dp²)
+Combined       σeq = √(σb² + 3τ²)  ≤  √3 · τallow</div>
+<h3>7. Misalignment and safety</h3><p>Utilisation r = e/e<sub>allow</sub> + α/α<sub>allow</sub>. Stresses are multiplied by Km = 1 + 1.5r (rigid) or 1 + 0.3r (flexible; hub and flange 1 + 0.1r). This is a simplified model for learning. Safety factor SF = allowable stress ÷ actual stress. Rim speed v = π·D2·n/60000 is limited to 30 m/s.</p>
+<div class="eq">Torque capacity = Td × (minimum SF over all stress checks)
+SAFE: SF ≥ 1.5   MARGINAL: 1.0 – 1.5   FAIL: SF &lt; 1.0</div>
+<h3>Assumptions</h3><ul><li>Steady torque with service factor covering shock; the torque is shared equally by all bolts or pins.</li><li>Fatigue, stress concentration at keyways and thermal effects are not modelled.</li><li>Use for learning and preliminary sizing; verify final designs against the standards and the manufacturer’s data.</li></ul></div></div>
+<div class="pane" id="pane_results" style="display:none">
+<div class="card"><h2>Download results</h2><div id="resHead"></div>
+<div class="dl"><button onclick="dl('csv')">Download CSV</button><button onclick="dl('html')">Download report (HTML)</button><button onclick="dl('md')">Download Markdown</button></div><div class="sub" id="dlMsg">Files reflect the current simulator inputs. The HTML report can be printed to PDF from your browser.</div></div>
+<div class="card"><h2>Inputs</h2><div class="tw"><table id="rIn"></table></div></div>
+<div class="card"><h2>Design outputs</h2><div class="tw"><table id="rOut"></table></div></div>
+<div class="card"><h2>Stress checks</h2><div class="tw"><table id="rChk"></table></div></div></div>
+<script>
+const $=id=>document.getElementById(id),PI=Math.PI;
+const SH=[12,14,16,18,20,22,25,28,30,32,35,38,40,42,45,48,50,55,60,65,70,75,80,85,90,100,110,120,130,140,150,160,180,200];
+const BO=[6,8,10,12,16,20,24,30,36,42,48,56],PN=[6,8,10,12,14,16,18,20,22,25,28,32,36,40];
+const std=(x,l)=>l.find(v=>v>=x)||l[l.length-1];
+const IN={P:["Power P","kW",1,500,1,40],N:["Shaft speed n","rpm",50,3600,10,1000],
+tS:["Shaft τ allow","MPa",20,80,1,40],tF:["Hub/flange τ allow","MPa",5,60,1,15],tB:["Bolt/pin τ allow","MPa",15,120,1,30],sC:["Key crushing σ allow","MPa",60,250,5,160],pB:["Bush pressure allow","MPa",0.2,3,0.05,1.2],
+E:["Parallel offset e","mm",0,1.5,0.01,0.1],A:["Angular misalign. α","deg",0,3,0.01,0.1]};
+const mk=(ids,el)=>ids.forEach(k=>{const[l,u,mi,ma,st,v]=IN[k];$(el).insertAdjacentHTML("beforeend",`<div class="row"><label>${l}<b><span id="v${k}"></span> ${u}</b></label><input type="range" id="${k}" min="${mi}" max="${ma}" step="${st}" value="${v}"></div>`)});
+mk(["P","N"],"in1");mk(["tS","tF","tB","sC","pB"],"in2");mk(["E","A"],"in3");
+let type="flex",spinOn=true,ang=0,R=null;
+const g=k=>+$(k).value;
+function calc(){
+ const P=g("P"),n=g("N"),Ks=+$("duty").value,rg=type==="rigid";
+ const T=9550*P/n,Td=T*Ks,Tm=Td*1000;
+ const dReq=Math.cbrt(16*Tm/(PI*g("tS"))),d=std(dReq,SH);
+ const Dh=2*d,t=.5*d,D1=3*d,D2=4*d,lk=1.5*d,b=d/4,h=d/6;
+ const nb=rg?(d<=40?3:d<=100?4:6):(d<=25?4:d<=60?6:8);
+ const ea=rg?0.05:0.4,aa=rg?0.05:1.0,r=g("E")/ea+g("A")/aa;
+ const km=rg?1+1.5*r:1+.3*r,kh=rg?km:1+.1*r;
+ const C=[];const add=(n,a,al,u,k)=>C.push({n,a:a*k,al,u,sf:al/(a*k)});
+ add("Shaft torsional shear",16*Tm/(PI*d**3),g("tS"),"MPa",rg?km:1);
+ add("Key shear",2*Tm/(d*b*lk),g("sC")/2,"MPa",rg?km:1);
+ add("Key crushing",4*Tm/(d*h*lk),g("sC"),"MPa",rg?km:1);
+ add("Hub shear",16*Tm*Dh/(PI*(Dh**4-d**4)),g("tF"),"MPa",kh);
+ add("Flange shear",2*Tm/(PI*Dh*Dh*t),g("tF"),"MPa",kh);
+ let db,dp,lb,F;
+ if(rg){const q=Math.sqrt(8*Tm/(PI*nb*g("tB")*D1));db=std(q,BO);
+  add("Bolt shear (M"+db+" ×"+nb+")",8*Tm/(PI*nb*db*db*D1),g("tB"),"MPa",km);}
+ else{F=2*Tm/(nb*D1);const q=Math.sqrt(F/(1.5*g("pB")));dp=Math.min(std(q,PN),Math.floor(.25*D1));lb=1.5*dp;
+  const M=F*(lb/2+5),sb=32*M/(PI*dp**3),ts=4*F/(PI*dp*dp);
+  add("Pin combined (Ø"+dp+" ×"+nb+")",Math.hypot(sb,Math.sqrt(3)*ts),1.732*g("tB"),"MPa",km);
+  add("Bush bearing pressure",F/(dp*lb),g("pB"),"MPa",km);}
+ const minSF=Math.min(...C.map(c=>c.sf)),v=PI*D2*n/60000,vSF=30/v;
+ const sfAll=Math.min(minSF,vSF);
+ return{T,Td,d,dReq,Dh,t,D1,D2,lk,b,h,nb,db,dp,lb,r,ea,aa,km,C,minSF,v,vSF,sfAll,cap:Td*minSF,rg,Ks,P,n};
+}
+const stat=s=>s>=1.5?["SAFE","var(--ok)"]:s>=1?["MARGINAL","var(--wa)"]:["FAIL","var(--ng)"];
+const f=(x,p=1)=>x.toFixed(p);
+function render(){
+ R=calc();const S=stat(R.sfAll);
+ Object.keys(IN).forEach(k=>$("v"+k).textContent=g(k));$("ksv").textContent=R.Ks;
+ $("kpis").innerHTML=[["Design status",`<span class="status" style="color:${S[1]}">${S[0]}</span>`,"min SF "+f(R.sfAll,2)],
+ ["Transmitted torque",f(R.T,0)+" N·m","design "+f(R.Td,0)+" N·m"],
+ ["Torque capacity",f(R.cap,0)+" N·m",f(R.cap/R.Td,2)+"× design"],
+ ["Shaft diameter",R.d+" mm","calc "+f(R.dReq,1)+" mm"],
+ ["Rim speed",f(R.v,1)+" m/s","limit 30 m/s"],
+ ["Misalignment use",f(R.r*100/(R.rg?1:1),0)+" %",R.r>1?"exceeds limit":"within limit"]]
+ .map(k=>`<div class="kpi"><span>${k[0]}</span><b>${k[1]}</b><br><small>${k[2]}</small></div>`).join("");
+ const rows=R.C.concat([{n:"Rim speed (centrifugal)",a:R.v,al:30,u:"m/s",sf:R.vSF}]);
+ $("tbl").innerHTML="<tr><th>Check</th><th>Actual</th><th>Allowable</th><th>SF</th><th>Utilisation</th><th></th></tr>"+rows.map(c=>{const s=stat(c.sf),u=Math.min(100,100*c.a/c.al);
+  return`<tr><td>${c.n}</td><td>${f(c.a,2)} ${c.u}</td><td>${f(c.al,1)} ${c.u}</td><td>${f(c.sf,2)}</td><td><div class="bar"><i style="width:${u*.667>66.7?100:u*.667}%;background:${s[1]}"></i><u></u></div></td><td><span class="pill" style="background:${s[1]}">${s[0]}</span></td></tr>`}).join("");
+ $("geo").innerHTML=[["Hub Ø",R.Dh],["Flange Ø",R.D2],["Flange t",R.t],["Bolt PCD",R.D1],["Key l",R.lk],["Key b×h",f(R.b,1)+"×"+f(R.h,1)],[R.rg?"Bolts":"Pins",R.nb+(R.rg?" × M"+R.db:" × Ø"+R.dp)],["Allowed e / α",R.ea+" mm / "+R.aa+"°"]].map(x=>`<div>${x[0]}: <b>${typeof x[1]=="number"?f(x[1],1)+" mm":x[1]}</b></div>`).join("");
+ advise(S);drawSide(S);drawEnd();results();
+}
+function advise(S){
+ const a=[],w=R.C.slice().sort((x,y)=>x.sf-y.sf)[0];
+ a.push(`<b>Governing check:</b> ${w.n} (SF ${f(w.sf,2)}).`);
+ if(R.rg&&R.r>.3)a.push(`Rigid couplings tolerate almost no misalignment (≈${R.ea} mm / ${R.aa}°). Current misalignment multiplies stresses by ×${f(R.km,1)} — realign shafts or switch to the flexible pin-bush type.`);
+ if(!R.rg&&R.r>1)a.push("Misalignment exceeds the flexible coupling’s capacity: expect rapid bush wear. Re-align or use a double-disc or gear coupling.");
+ if(R.v>30)a.push("Rim speed above 30 m/s: use forged steel, dynamic balancing or a smaller-diameter design.");
+ if(R.sfAll<1)a.push("Reduce transmitted power or service factor, or select higher-strength materials (raise allowable stresses).");
+ else if(R.sfAll<1.5)a.push("Marginal: aim for SF ≥ 1.5. Raise allowable stress (better material), reduce shock duty, or increase the shaft size.");
+ else if(R.sfAll>4)a.push("Heavily over-designed — a smaller, cheaper coupling may serve (lower material grade or smaller shaft).");
+ else a.push("Design is within a healthy safety window. Torque reserve: "+f((R.cap/R.Td-1)*100,0)+" % above design torque.");
+ if(!R.rg&&R.C.find(c=>c.n.startsWith("Bush")).sf<1.5)a.push("Bush pressure governs: add pins, use longer bushes or a harder bush material (higher allowable pressure).");
+ $("adv").innerHTML=a.map(x=>`<li>${x}</li>`).join("");
+}
+function half(sc,col,flexRight){ // left-half geometry in units of d, drawn with scale sc
+ const d=R.d,u=x=>x*sc,fr=R.t/d;let s="";
+ const rect=(x1,x2,r,fill)=>`<rect x="${u(x1/1)}" y="${-u(r)}" width="${u(x2-x1)}" height="${u(2*r)}" fill="${fill}" stroke="var(--ink)" stroke-width="1"/>`;
+ s+=rect(-3.5,0,.5,"var(--steel2)");               // shaft
+ s+=rect(-1.5,0,1,"var(--hub)");                   // hub
+ s+=rect(-.5,0,2,col);                              // flange
+ s+=`<rect x="${u(-3.5)}" y="${-u(.5)}" width="${u(2)}" height="${u(1)}" fill="var(--steel2)" stroke="var(--ink)"/>`;
+ s+=`<rect x="${u(-1.5)}" y="${-u(.5)}" width="${u(1.5)}" height="${u(.17)}" fill="var(--ink)" opacity=".5"/>`;
+ const rb=R.rg?R.db/d:R.dp/d;
+ [-1.5,1.5].forEach(y=>{s+=`<rect x="${u(-.8)}" y="${u(y-rb/2)}" width="${u(.8)}" height="${u(rb)}" fill="${R.rg?"var(--ink)":"#b45309"}" opacity=".9"/>`;});
+ return s;
+}
+function drawSide(S){
+ const d=R.d,sc=40/1*(1/1),k=sc;let col=S[1];
+ const exg=Math.min(60,3+g("E")*40),ex=g("E")*exg*(k/ Math.max(1,d/40)),rot=Math.min(14,g("A")*5);
+ const dx=g("E")*exg*.3, h=half(k,col);
+ const right=`<g transform="translate(${dx} 0) rotate(${rot})"><g transform="scale(-1 1)">${half(k,col)}</g></g>`;
+ $("side").innerHTML=`<g transform="translate(320 150)"><line x1="-310" x2="310" y1="0" y2="0" stroke="var(--mu)" stroke-dasharray="6 4" opacity=".6"/>${h}${right}
+ <text x="-300" y="-125" fill="var(--mu)" font-size="12">Driver</text><text x="255" y="-125" fill="var(--mu)" font-size="12">Driven</text>
+ <text x="0" y="140" fill="var(--mu)" font-size="12" text-anchor="middle">e ≈ ${f(g("E"),2)} mm · α ≈ ${f(g("A"),2)}°</text></g>`.replace("<g transform=\"translate(320 150)\">","<g transform=\"translate(320 145)\">");
+}
+function drawEnd(){
+ const sc=125/(R.D2/2),c=150;let s=`<g transform="translate(${c} ${c})">`;
+ const col=stat(R.sfAll)[1];
+ s+=`<g id="rot"><circle r="${R.D2/2*sc}" fill="var(--hub)" stroke="${col}" stroke-width="3"/><circle r="${R.Dh/2*sc}" fill="var(--steel)" stroke="var(--ink)"/>`;
+ s+=`<circle r="${R.D1/2*sc}" fill="none" stroke="var(--mu)" stroke-dasharray="4 3"/>`;
+ const rb=(R.rg?R.db:R.dp)/2*sc;
+ for(let i=0;i<R.nb;i++){const a=i*2*PI/R.nb;s+=`<circle cx="${R.D1/2*sc*Math.cos(a)}" cy="${R.D1/2*sc*Math.sin(a)}" r="${rb}" fill="${R.rg?"var(--ink)":"#b45309"}" stroke="var(--ink)"/>`;if(!R.rg)s+=`<circle cx="${R.D1/2*sc*Math.cos(a)}" cy="${R.D1/2*sc*Math.sin(a)}" r="${rb*.55}" fill="var(--steel2)"/>`}
+ s+=`<circle r="${R.d/2*sc}" fill="var(--steel2)" stroke="var(--ink)"/><rect x="${-R.b/2*sc}" y="${-(R.d/2+R.h/2)*sc}" width="${R.b*sc}" height="${R.h*sc*1.4}" fill="var(--bg)" stroke="var(--ink)"/></g>`;
+ s+=`<text y="150" x="0" text-anchor="middle" fill="var(--mu)" font-size="12">End view · ${R.nb} ${R.rg?"bolts":"pins"} on Ø${R.D1} mm PCD</text></g>`;
+ $("end").innerHTML=s;
+}
+let last=0;function tick(t){if(spinOn&&R){ang+=(t-last)*Math.min(R.n,3000)/60*360*.00004*10;const e=$("rot");if(e)e.setAttribute("transform","rotate("+ang%360+")")}last=t;requestAnimationFrame(tick)}
+document.querySelectorAll("input[type=range],select").forEach(e=>e.addEventListener("input",render));
+document.querySelectorAll("#typeSeg button").forEach(b=>b.onclick=()=>{type=b.dataset.t;document.querySelectorAll("#typeSeg button").forEach(x=>x.classList.toggle("on",x===b));render()});
+$("spin").onclick=()=>{spinOn=!spinOn;$("spin").textContent=spinOn?"Pause rotation":"Resume rotation"};
+function tab(n){["sim","theory","results"].forEach(x=>{$("tab_"+x).classList.toggle("on",x===n);$("pane_"+x).style.display=x===n?"":"none"})}
+function snap(){return{
+ inputs:[["Coupling type",R.rg?"Rigid flange":"Flexible bushed-pin"],["Power (kW)",g("P")],["Speed (rpm)",g("N")],["Service factor",R.Ks],["Shaft tau allow (MPa)",g("tS")],["Hub/flange tau allow (MPa)",g("tF")],["Bolt/pin tau allow (MPa)",g("tB")],["Key crushing sigma allow (MPa)",g("sC")],["Bush pressure allow (MPa)",g("pB")],["Parallel offset (mm)",g("E")],["Angular misalignment (deg)",g("A")]],
+ outputs:[["Transmitted torque (N·m)",f(R.T,1)],["Design torque (N·m)",f(R.Td,1)],["Calculated shaft dia (mm)",f(R.dReq,2)],["Selected shaft dia (mm)",R.d],["Hub dia (mm)",R.Dh],["Flange dia (mm)",R.D2],["Flange thickness (mm)",f(R.t,1)],["Bolt/pin PCD (mm)",R.D1],["Key length (mm)",R.lk],[R.rg?"Bolts":"Pins",R.nb+(R.rg?" x M"+R.db:" x dia "+R.dp)],["Misalignment factor Km",f(R.km,2)],["Rim speed (m/s)",f(R.v,1)],["Torque capacity (N·m)",f(R.cap,0)],["Minimum safety factor",f(R.sfAll,2)],["Design status",stat(R.sfAll)[0]]],
+ checks:R.C.concat([{n:"Rim speed",a:R.v,al:30,u:"m/s",sf:R.vSF}]).map(c=>[c.n,f(c.a,2),f(c.al,1),c.u,f(c.sf,2),stat(c.sf)[0]])}}
+function results(){const s=snap(),S=stat(R.sfAll);
+ $("resHead").innerHTML=`<b class="status" style="color:${S[1]}">${S[0]}</b> · min SF ${f(R.sfAll,2)} · torque capacity ${f(R.cap,0)} N·m`;
+ const t=(h,r)=>"<tr>"+h.map(x=>`<th>${x}</th>`).join("")+"</tr>"+r.map(x=>"<tr>"+x.map(y=>`<td>${y}</td>`).join("")+"</tr>").join("");
+ $("rIn").innerHTML=t(["Parameter","Value"],s.inputs);$("rOut").innerHTML=t(["Quantity","Value"],s.outputs);
+ $("rChk").innerHTML=t(["Check","Actual","Allowable","Unit","SF","Status"],s.checks)}
+async function dl(kind){
+ let D=null;try{D=window.claude?await window.claude.use("downloads"):null}catch(e){}
+ if(!D){$("dlMsg").textContent="Downloads are not available in this view.";return}
+ const s=snap(),d=new Date().toISOString().slice(0,10),base="coupling-design-"+(R.rg?"rigid":"flexible")+"-"+d;let name,data;
+ const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+ if(kind==="csv"){name=base+".csv";data="\ufeff"+[["INPUTS"],...s.inputs,[],["DESIGN OUTPUTS"],...s.outputs,[],["STRESS CHECKS"],["Check","Actual","Allowable","Unit","SF","Status"],...s.checks].map(r=>r.map(q).join(",")).join("\r\n")}
+ else if(kind==="md"){name=base+".md";const m=(h,r)=>"| "+h.join(" | ")+" |\n|"+h.map(()=>"---").join("|")+"|\n"+r.map(x=>"| "+x.join(" | ")+" |").join("\n");
+ data=`# Coupling design report (${d})\n\n## Inputs\n${m(["Parameter","Value"],s.inputs)}\n\n## Design outputs\n${m(["Quantity","Value"],s.outputs)}\n\n## Stress checks\n${m(["Check","Actual","Allowable","Unit","SF","Status"],s.checks)}\n`}
+ else{name=base+".html";const h=(a,r)=>"<table><tr>"+a.map(x=>`<th>${x}</th>`).join("")+"</tr>"+r.map(x=>"<tr>"+x.map(y=>`<td>${y}</td>`).join("")+"</tr>").join("")+"</table>";
+ data=`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Coupling design report</title><style>body{font:14px system-ui,sans-serif;max-width:820px;margin:24px auto;padding:0 16px;color:#1c2430}table{border-collapse:collapse;width:100%;margin:8px 0 18px}th,td{border:1px solid #ccd;padding:5px 8px;text-align:left}th{background:#eef1f6}h1{font-size:20px}h2{font-size:15px;margin-top:20px}</style></head><body><h1>Coupling design report</h1><p>${d} · ${R.rg?"Rigid flange":"Flexible bushed-pin"} coupling · <b>${stat(R.sfAll)[0]}</b> (min SF ${f(R.sfAll,2)})</p><h2>Inputs</h2>${h(["Parameter","Value"],s.inputs)}<h2>Design outputs</h2>${h(["Quantity","Value"],s.outputs)}<h2>Stress checks</h2>${h(["Check","Actual","Allowable","Unit","SF","Status"],s.checks)}</body></html>`}
+ try{await D.save({filename:name,data});$("dlMsg").textContent="Saved "+name}
+ catch(e){$("dlMsg").textContent=e&&e.code==="declined"?"Download cancelled.":"Download unavailable ("+((e&&e.code)||"error")+")."}}
+render();requestAnimationFrame(tick);
+</script></body></html>
